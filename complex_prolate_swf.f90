@@ -179,7 +179,7 @@ module complex_prolate_swf
                                        s1c(lnum, narg), s1dc(lnum, narg)
         integer, intent (out)      ::  ir1e(lnum), ir1de(lnum), ir2e(lnum), ir2de(lnum), &
                                        is1e(lnum, narg), is1de(lnum, narg), & 
-                                       naccr(lnum), naccs(lnum, narg), naccds(lnum, narg)
+                                       naccr(lnum), naccs(lnum, narg), naccds(lnum, narg)  
 
         real(knd) c
 !
