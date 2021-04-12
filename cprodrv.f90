@@ -21,12 +21,16 @@ program cprodrv
     kindq = 16
 
     open(1, file='cprofcn.dat')
+    open(20, file='fort.20')
+    open(30, file='fort.30')
+    open(40, file='fort.20')
+    open(50, file='fort.30')
+    open(60, file='fort.20')
+
     read(1,*) mmin, minc, mnum, lnum
     read(1,*) ioprad, iopang, iopnorm
     read(1,*) cc, x1
     if(iopang /= 0) read(1,*) ioparg, arg1, darg, narg
-    open(20, file='fort.20')
-    open(30, file='fort.30')
         
     allocate (eta(narg), r1c(lnum), r1dc(lnum), r2c(lnum), r2dc(lnum))
     allocate (ir1e(lnum), ir1de(lnum), ir2e(lnum), ir2de(lnum), naccr(lnum))
@@ -134,6 +138,11 @@ program cprodrv
     deallocate (s1c, s1dc)
     deallocate (ir1e, ir1de, ir2e, ir2de, naccr)
     deallocate (eta, r1c, r1dc, r2c, r2dc)
+    close(60)
+    close(50)
+    close(40)
+    close(30)
+    close(20)
     close(1)
 
 end program cprodrv

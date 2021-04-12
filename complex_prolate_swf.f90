@@ -179,7 +179,7 @@ module complex_prolate_swf
                                        s1c(lnum, narg), s1dc(lnum, narg)
         integer, intent (out)      ::  ir1e(lnum), ir1de(lnum), ir2e(lnum), ir2de(lnum), &
                                        is1e(lnum, narg), is1de(lnum, narg), & 
-                                       naccr(lnum), naccs(lnum, narg), naccds(lnum, narg)  
+                                       naccr(lnum), naccs(lnum, narg), naccds(lnum, narg)
 
         real(knd) c
 !
@@ -5469,12 +5469,12 @@ end if
 if (debug) then
         if(knd == kindd) then
           write(40, 180) l, eigst, idigc, ifc
-180       format(1x,'l = ',i4,' eigen. estimate',e24.15, e24.15, &
+180       format(1x,'l = ',i4,' eigen. estimate',e23.14, e23.14, &
                  /,10x,'conv. to',i3,' dig. at ifc =',i3)
           end if
           if(knd == kindq) then
           write(40, 190) l, eigst, idigc, ifc
-190       format(1x,'l = ',i4,' eigen. estimate',e41.32, e41.32, &
+190       format(1x,'l = ',i4,' eigen. estimate',e39.30, e39.30, &
                  /,10x,'conv. to',i3,' dig. at ifc =',i3)
           end if
 end if
