@@ -4,7 +4,6 @@ module param
     logical, parameter :: debug = .true.
     logical, parameter :: warn = .true.
     logical, parameter :: output = .true.
-    logical, parameter :: suffix = .false.
 end module param
 
 program cprofcn
@@ -450,13 +449,7 @@ end if
                 limnsv(jnenmax), jelimsv(jnenmax)
 
         character chr_w, chr_e
-        if (suffix) then
-            chr_e = 'e'
-            chr_w = 'w'
-        else
-            chr_e = ' '
-            chr_w = ' '
-        end if
+        chr_e = 'e' ;chr_w = 'w'
 
         dec = 10.0e0_knd ** (-ndec - 1)
         ten = 10.0e0_knd
@@ -1704,14 +1697,14 @@ if (debug) then
                    write(40, 620) naccetas, etaval, nee, r2ec, ir2ee, r2dec, &
                                  ir2dee
 620             format(15x,'accuracy = ',i3,' decimal digits; eta', &
-                       ' = ',f17.14,'; nee = ',i4,/,10x,'r2 = ', f17.14, &
+                       ' = ',f12.9,'; nee = ',i4,/,10x,'r2 = ', f17.14, &
                        f17.14, i6, 2x,'r2d = ',f17.14, f17.14, i6)
                 if(nacciope == 0 .and. nacccor > 0 .and. naccetas /= 0) &
                    write(40, 625) naccetas, nacccor, etaval, nee, r2ec, ir2ee, &
                                  r2dec, ir2dee
 625             format(15x,'accuracy =',i3,' decimal digits,' &
                        ' adjusted for',i3,' subtraction digits in' &
-                       ' forming Wronskian;'/,15x,' eta = ',f17.14,';' &
+                       ' forming Wronskian;'/,15x,' eta = ',f12.9,';' &
                        ' nee = ',i4,/10x,'r2 = ',f17.14, f17.14, i5, &
                        2x,'r2d = ',f17.14, f17.14, 2x, i5)
                 end if
@@ -1720,14 +1713,14 @@ if (debug) then
                    write(40, 630) naccetas, etaval, nee, r2ec, ir2ee, r2dec, &
                                  ir2dee
 630             format(15x,'accuracy = ',i3,' decimal digits; eta', &
-                       ' = ',f17.14,'; nee = ',i4,/,10x,'r2 = ', f33.30, &
+                       ' = ',f12.9,'; nee = ',i4,/,10x,'r2 = ', f33.30, &
                        f33.30, i6,/,10x,'r2d = ',f33.30, f33.30, i6)
                 if(nacciope == 0 .and. nacccor > 0 .and. naccetas /= 0) &
                    write(40, 635) naccetas, nacccor, etaval, nee, r2ec, ir2ee, &
                                  r2dec, ir2dee
 635             format(15x,'accuracy =',i3,' decimal digits,' &
                        ' adjusted for',i3,' subtraction digits in' &
-                       ' forming Wronskian;'/,15x,' eta = ',f17.14,';' &
+                       ' forming Wronskian;'/,15x,' eta = ',f12.9,';' &
                        ' nee = ',i4,/,10x,'r2 = ',f33.30, f33.30, i6, &
                        /,10x,'r2d = ',f33.30, f33.30, i6)
                 end if

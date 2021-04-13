@@ -10,6 +10,7 @@ program cprodrv
 
     real(knd)    arg1, c, darg, x1
     complex(knd) cc
+    character    chr
 
     real (knd), dimension(:), allocatable ::        eta
     complex(knd), dimension(:), allocatable ::      r1c, r1dc, r2c, r2dc
@@ -100,12 +101,14 @@ program cprodrv
 
             do i = 1, lnum
                 l = m + i - 1
-
-                if(ioprad == 1) write(20, 186) l, r1c(i), ir1e(i), r1dc(i), ir1de(i), naccr(i)
-186             format(1x, i5, 2x, 2(f17.14, 1x, f17.14, i5, 2x), i4)
-
-                if(ioprad == 2) write(20, 690) l, r1c(i), ir1e(i), r1dc(i), ir1de(i), r2c(i), ir2e(i), r2dc(i), ir2de(i), naccr(i)
-690             format(1x, i5, 2x, 2(f17.14, 1x, f17.14, i5, 2x),/,8x, 2(f17.14, 1x, f17.14, i5, 2x), i2, '  ')
+                chr = 'w'
+                if (naccr(i) < 0) chr = 'e' 
+                if(ioprad == 1) write(20, 186) l, r1c(i), ir1e(i), r1dc(i), ir1de(i), abs(naccr(i)), chr
+186             format(1x, i5, 2x, 2(f17.14, 1x, f17.14, i5, 2x), i2, ' ', a)
+                chr = 'w'
+                if (naccr(i) < 0) chr = 'e' 
+                if(ioprad == 2) write(20, 690) l, r1c(i), ir1e(i), r1dc(i), ir1de(i), r2c(i), ir2e(i), r2dc(i), ir2de(i), abs(naccr(i)), chr
+690             format(1x, i5, 2x, 2(f17.14, 1x, f17.14, i5, 2x),/,8x, 2(f17.14, 1x, f17.14, i5, 2x), i2, ' ', a)
 
             end do
         end if

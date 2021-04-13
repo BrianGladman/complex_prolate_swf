@@ -4,5 +4,4 @@ module param
     logical, parameter :: debug = .true.
     logical, parameter :: warn = .true.
     logical, parameter :: output = .false.
-    logical, parameter :: suffix = .false.    
 end module param

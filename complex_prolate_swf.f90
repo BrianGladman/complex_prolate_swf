@@ -516,13 +516,7 @@ end if
                 limnsv(jnenmax), jelimsv(jnenmax)
 
         character chr_w, chr_e
-        if (suffix) then
-            chr_e = 'e'
-            chr_w = 'w'
-        else
-            chr_e = ' '
-            chr_w = ' '
-        end if
+        chr_e = 'e'; chr_w = 'w'
 
         dec = 10.0e0_knd ** (-ndec - 1)
         ten = 10.0e0_knd
@@ -1900,8 +1894,14 @@ end if
               naccrplp = naccrpl
               naccr1p = naccr1
               lisave = li
-              if(ioprad == 2) nar(li) = naccr
-              if(ioprad == 1) nar(li) = naccr1
+              if(ioprad == 2) then
+                  nar(li) = naccr
+                  if (nacciop /= 0) nar(li) = -naccr 
+              end if
+              if(ioprad == 1) then
+                  nar(li) = naccr1
+                  if (nacciop /= 0) nar(li) = -naccr 
+              end if
 720           if(iopang == 0) go to 850
 !
 !  determine first kind prolate angular function
