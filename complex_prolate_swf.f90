@@ -1,8 +1,8 @@
 module complex_prolate_swf
       use param
-!      
+!
       contains
-  
+
       subroutine cprofcn(cc, m, lnum, ioprad, x1, iopang, iopnorm, narg, arg, &
                        r1c, ir1e, r1dc, ir1de, r2c, ir2e, r2dc, ir2de, naccr, &
                        s1c, is1e, s1dc, is1de, naccs, naccds)
@@ -36,7 +36,7 @@ module complex_prolate_swf
 !  repository. If this is not available, then create param as follows:
 !    module param
 !    integer, parameter :: knd = selected_real_kind(8)
-!    integer, parameter :: knd1 = selected_real_kind(8) 
+!    integer, parameter :: knd1 = selected_real_kind(8)
 !    logical, parameter :: debug = .true.
 !    logical, parameter :: warn = .true.
 !    logical, parameter :: output = .true.
@@ -46,7 +46,7 @@ module complex_prolate_swf
 !  or 16 for quadruple precision arithmetic. Set the value of knd1 to that used
 !  for the Bouwkamp procedure. Note that if knd = 16, knd1 should also be 16. The
 !  logicals in param are described below in the discussion of the output files.
-!  
+!
 !  Cprofcn provides good results over reasonable ranges of input parameters. A
 !  description of the expected accuracy of cprofcn is given in the readme file.
 !  Cprofcn provides function values for c complex = real(c) + i aimag(c) = cr + i ci,
@@ -178,8 +178,8 @@ module complex_prolate_swf
         complex(knd), intent (out) ::  r1c(lnum), r1dc(lnum), r2c(lnum), r2dc(lnum), &
                                        s1c(lnum, narg), s1dc(lnum, narg)
         integer, intent (out)      ::  ir1e(lnum), ir1de(lnum), ir2e(lnum), ir2de(lnum), &
-                                       is1e(lnum, narg), is1de(lnum, narg), & 
-                                       naccr(lnum), naccs(lnum, narg), naccds(lnum, narg)  
+                                       is1e(lnum, narg), is1de(lnum, narg), &
+                                       naccr(lnum), naccs(lnum, narg), naccds(lnum, narg)
 
         real(knd) c
 !
@@ -389,7 +389,7 @@ end if
 !               r1dc   : array of lnum values for the characteristic
 !                        of the derivative of the radial function of
 !                        the first kind)
-!               ir1de  : array of exponents corresponding to r1dc  
+!               ir1de  : array of exponents corresponding to r1dc
 !               r2c    : array of lnum values for the characteristic
 !                        of the radial function of the second kind
 !               ir2e   : array of exponents corresponding to r2c
@@ -418,7 +418,7 @@ end if
 !                        for each of the lnum values of l
 !               nads   : two-dimensional array nads(lnum,narg) containing
 !                        narg estimated accuracy values for the first derivatives
-!                        of the angular functions for each of the lnum values of 
+!                        of the angular functions for each of the lnum values of
 !
         use param
 !
@@ -514,7 +514,7 @@ end if
 !  miscellaneous integer arrays
         integer nees(100), naccsav(100), neeb(jnenmax), limpsv(jnenmax), &
                 limnsv(jnenmax), jelimsv(jnenmax)
-                
+
         character chr_w, chr_e
         if (suffix) then
             chr_e = 'e'
@@ -1068,9 +1068,9 @@ if (warn) then
 end if
                 end if
                 if(ioprad == 1) then
-                lisave = li   
+                lisave = li
                 go to 720
-                end if              
+                end if
 !
 !  determine prolate radial functions of the second kind
 !
@@ -1192,7 +1192,7 @@ end if
               naccintp = naccout
 201           if(naccint < minacc .and. x1 <= 0.1e0_knd .and.  &
                  iopleg == 0 .and. l >= legstart .and.  &
-                 jsub <= ndec - naccint) iopleg = 1     
+                 jsub <= ndec - naccint) iopleg = 1
               nacccor = min(nacccor, naccint - naccinto, naccint)
               if(nacccor < 0) nacccor = 0
 if (debug) then
@@ -1427,15 +1427,15 @@ end if
               nacccor = min(nacccor, naccrpl + 1)
               if(nacccor < 0) nacccor = 0
               if(naccneu > 0) naccneu = min(naccneu + nacccor, naccr1, &
-                                       ndec - nsubmf)             
+                                       ndec - nsubmf)
               if(naccneu == 0 .and. naccrpl > 0) then
               imat = -int(log10(abs((r1c(li) * (0.0e0_knd, 1.0e0_knd) - r2nc* &
-              ten ** (ir2ne - ir1e(li))) / r1c(li)) + dec)) 
+              ten ** (ir2ne - ir1e(li))) / r1c(li)) + dec))
               imatd = -int(log10(abs((r1dc(li) * (0.0e0_knd, 1.0e0_knd)- &
                     r2dnc * ten ** (ir2dne - ir1de(li))) / r1dc(li)) + dec))
               naccneu = min(imat, imatd, naccrpl, naccr1, ndec - nsubmf)
               if(naccneu < 0) naccneu = 0
-              end if             
+              end if
 385           naccout = naccneu
               if(naccneup - naccneu > 8) naccneu = naccneup
               naccneup = naccneu
@@ -1463,7 +1463,7 @@ end if
                                    +1))
               end if
               nacccor = min(nacccor, naccneu - naccneuo, naccneu)
-              if(nacccor < 0) nacccor = 0         
+              if(nacccor < 0) nacccor = 0
 if (debug) then
                 if(knd == kindd) then
                 if(nacccor == 0) write(40, 400) naccout, r2nc, ir2ne, &
@@ -1808,7 +1808,7 @@ end if
               if(iplflag == 1 .and. incnflag == 1 .and. netatry == 2) &
                      iopnee = 0
               ietacount = 0
-              insflag = 0    
+              insflag = 0
               if(naccns == ndec .and. x <= 1.11e0_knd) insflag = 1
               if((naccd >= naccdp .or. naccd >= minacc .or. naccd >= naccrp &
                    .or. naccd >= naccr) .and. (naccd + naccdp > 0) .and.  &
@@ -1863,7 +1863,7 @@ end if
               ir2e = 0
               r2dc = 0.0e0_knd
               ir2de = 0
-680 continue   
+680 continue
 if (output) then
               if(ioprad == 2 .and. nacciop == 0) write(20, 690) l, r1c(li), &
                      ir1e(li), r1dc(li), ir1de(li), r2c(li), ir2e(li), &
@@ -1913,7 +1913,7 @@ end if
                          pnorm, ipnorm, pdtempe, ipdtempe, pdtempo, ipdtempo, &
                          ptempe, iptempe, ptempo, iptempo, s1c, is1e, s1dc, &
                          is1de, naccs, naccds, jang, dmlms, idmlmse, dmlms1, &
-                         idmlms1e, jsubms)             
+                         idmlms1e, jsubms)
                 do 810 jarg = 1, narg
                 s1(li, jarg) = s1c(jarg)
                 s1d(li, jarg) = s1dc(jarg)
@@ -1959,7 +1959,7 @@ if (warn) then
                           ' digits for m = ',m,' l = ', l,' c = ',cc
 end if
               end if
-850           continue    
+850           continue
             ijmax = min(lisave, lical)
             if(ioprad == 1) ijmax = lisave
               do i = 1, ijmax - 2
@@ -1969,9 +1969,9 @@ end if
 if (warn) then
                   write(60,*) m, cc, i + m - 1, j + m - 1,' duplicated eigenvalue'
 end if
-                  end if 
+                  end if
                 end do
-              end do  
+              end do
 900         continue
           return
           end subroutine
@@ -2294,7 +2294,7 @@ end if
             dold = dnew
 240         continue
 250       if(j > jang) jang = j
-if (debug) then 
+if (debug) then
           write(50, 260) barg(k), j
 260       format(8x,'s1 calculation for eta = ',f17.14,' converged in ', &
                  i6,' terms')
@@ -2426,7 +2426,7 @@ end if
 !               maxlp  : maximum  l value desired; dimension
 !                        of the sbesdr, sbesn, and ibese arrays
 !               ndec   : number of decimal digits for kind = knd
-!               nex    : maximum exponent for kind = knd   
+!               nex    : maximum exponent for kind = knd
 !               iflag  : integer = 1 if forward series not needed;
 !                        =0 if the forward series is computed
 !               sbesf  : array of ratios of successive first kind
@@ -2542,7 +2542,7 @@ end if
         r1topd = r1top - 1.0e0_knd
         r1dtopd = r1dtop - 1.0e0_knd
 40      continue
-50	continue
+50  continue
 !
 !  backward summation of numerator series
         if (lm2 < 1) go to 80
@@ -2845,7 +2845,7 @@ end if
           r1c = r1c * 10.0e0_knd
           ir1e = ir1e - 1
           end if
-50	continue
+50  continue
         isubr = -int(log10(abs(real(r1temp) / r1rp) + dec))
         if(isubr < 0) isubr = 0
         isubi = 0
@@ -2893,7 +2893,7 @@ if (debug) then
 end if
         iterm = int(log10(abs(r1dc)))
         ir1de = ir1e + iterm
- 	r1dc = r1dc * 10.0e0_knd ** (-iterm)
+    r1dc = r1dc * 10.0e0_knd ** (-iterm)
           if(abs(real(r1dc)) > 10.0e0_knd .or. abs(aimag(r1dc)) >  &
               10.0e0_knd) then
           r1dc = r1dc / 10.0e0_knd
@@ -2904,7 +2904,7 @@ end if
           r1dc = r1dc * 10.0e0_knd
           ir1de = ir1de - 1
           end if
-70	continue
+70  continue
         return
         end subroutine
 !
@@ -3025,7 +3025,7 @@ end if
         if(m == 0) go to 20
           do 10 i = 1, m
           ri = real(i)
-	  coefn = coefn / (ri + ri)
+      coefn = coefn / (ri + ri)
           iterm = int(log10(abs(coefn)))
           coefn = coefn * 10.0e0_knd ** (-iterm)
 10        icoefn = icoefn + iterm
@@ -3034,7 +3034,7 @@ end if
         if(ix == 1) coefa = (rm2 + 3.0e0_knd) * coefn
         if((ix == 0) .and. (2 * (lm2 / 2) /= lm2)) coefa = -coefa
         if((ix == 1) .and. (2 * ((l - m - 1) / 4) /= (l - m - 1) / 2)) coefa = -coefa
-	coefl = coefa / d01
+    coefl = coefa / d01
         icoefl = -id01 + icoefn
         dec = 10.0e0_knd ** (-ndec - 1)
         jlow = lm2 + 1
@@ -3062,7 +3062,7 @@ end if
           if((abs(dnew / r2temp) + abs(dnewd / r2dtemp)) < dec) go to 40
           dold = dnew
           doldd = dnewd
-          end do 
+          end do
 !
 !  backward summation for series for r2 and r2d
 40      jint = j
@@ -3106,7 +3106,7 @@ end if
           if(iterm < 0) isubd = max(isubdr, isubdi + iterm)
           if(iterm > 0) isubd = max(isubdi, isubdr - iterm)
           end if
-	r2temp = r2temp * coefl * pnorm(l - m + 1)
+    r2temp = r2temp * coefl * pnorm(l - m + 1)
         if(ix == 0) r2temp = r2temp * pint1(l - m + 1)
         if(ix == 1) r2temp = r2temp * pint3(l - m + 1) * x
         iterm = int(log10(abs(r2temp)))
@@ -3141,7 +3141,7 @@ end if
           if(iterm > 0) isubd = max(isubd, isub - iterm)
           if(iterm <= 0) isubd = max(isub, isubd + iterm)
           end if
-        if(isubd > ndec) isubd = ndec  
+        if(isubd > ndec) isubd = ndec
 if (debug) then
         write(40, 80) jint, lim, isub, isubd
 80      format(8x,'r2int: converged in ',i6,' terms; 'i6, &
@@ -4157,7 +4157,7 @@ end if
              dmfnorm) * 10.0e0_knd ** (ineue(l + 1) + ipcoefn - idmfe+iscale-ir2e)
         iterm = int(log10(abs(r2dc)))
         ir2de = ir2e + iterm
- 	r2dc = r2dc * 10.0e0_knd ** (-iterm)
+    r2dc = r2dc * 10.0e0_knd ** (-iterm)
           if(abs(real(r2dc)) > 10.0e0_knd .or. abs(aimag(r2dc)) >  &
               10.0e0_knd) then
           r2dc = r2dc / 10.0e0_knd
@@ -4340,7 +4340,7 @@ end if
 !                         values computed using the variable eta method
 !              naccns   : larger of the subtraction error in the
 !                         calculation of the numerator for r2 and for
-!                         r2d 
+!                         r2d
 !
 !
         use param
@@ -4407,7 +4407,7 @@ end if
           dnew = dold / (pratb(jj + 1) * enr(j))
           denom = denom + dnew
           if(real(dnew) > 0.0e0_knd) sumdenpr = sumdenpr + real(dnew)
-          
+
           if(aimag(dnew) > 0.0e0_knd) sumdenpi = sumdenpi + aimag(dnew)
           if(abs(dnew / denom) < dec) go to 20
           dold = dnew
@@ -4538,7 +4538,7 @@ end if
                 .or. j >= lim - 10 .or. lflag == 2) go to 70
           dnewsum = dnewsum + dnew
           go to 80
-70        r2temp = r2temp + dnewsum   
+70        r2temp = r2temp + dnewsum
           kount = 0
           if(abs(r2temp) > r2test) go to 120
           if(real(dnewsum) > 0.0e0_knd) sumnpr = sumnpr + real(dnewsum)
@@ -4679,13 +4679,13 @@ end if
         naccns1 = max(naccns1r, naccns1i)
         naccns2 = max(naccns2r, naccns2i)
           if(abs(r2dtemp1 * r2dtemp2) /= 0.0e0_knd) then
-          icord = int(log10(abs(r2dtemp1 / r2dtemp2))) 
+          icord = int(log10(abs(r2dtemp1 / r2dtemp2)))
           if(icord > 0) jtestdm2 = jtestdm2 + icord
           if(icord < 0) jtestdm1 = jtestdm1 - icord
           jtestdm = min(jtestdm1, jtestdm2)
-          end if        
+          end if
         if(abs(r2dtemp1) == 0.0e0_knd) jtestdm = jtestdm2
-        if(abs(r2dtemp2) == 0.0e0_knd) jtestdm = jtestdm1   
+        if(abs(r2dtemp2) == 0.0e0_knd) jtestdm = jtestdm1
         ncorr = max(0,-int(log10(x1) - 0.001e0_knd)) + 1
         if(x1 >= 0.05e0_knd) ncorr = 1
           if(x1 <= 0.02e0_knd) then
@@ -4716,7 +4716,7 @@ end if
         iterm = 0
         if(r2dc /= (0.0e0_knd, 0.0e0_knd)) iterm = int(log10(abs(r2dc)))
         ir2de = ir2e + iterm
- 	r2dc = r2dc * 10.0e0_knd ** (-iterm)
+    r2dc = r2dc * 10.0e0_knd ** (-iterm)
 if (debug) then
         write(40, 140) jmax, jden, lim, js, jtestm, naccns1, jds, jtestdm, &
                       naccns2, naccn, naccd
@@ -4743,7 +4743,7 @@ end if
         if(nacceta > 0) nacceta = min(nacceta + nacccor, naccr1)
           if(nacceta == 0 .and. naccrpl > 0) then
           imat = -int(log10(abs((r1c * (0.0e0_knd, 1.0e0_knd) - r2c* &
-          ten ** (ir2e - ir1e)) / r1c) + dec)) 
+          ten ** (ir2e - ir1e)) / r1c) + dec))
           imatd = -int(log10(abs((r1dc * (0.0e0_knd, 1.0e0_knd) - r2dc* &
           ten ** (ir2de - ir1de)) / r1dc) + dec))
           nacceta = min(imat, imatd, naccrpl, naccr1)
@@ -4810,7 +4810,7 @@ end if
             iopnee = 2
         if(naccns1 == ndec .or. naccns2 == ndec) iopnee = 2
         nacccor = min(nacccor, nacceta - naccetao, nacceta)
-        if(nacccor < 0) nacccor = 0  
+        if(nacccor < 0) nacccor = 0
         return
         end subroutine
 !
@@ -4850,7 +4850,7 @@ end if
 !  obtain starting eigenvalues eigst(i) for the Bouwkamp procedure
 !
             lime = max(100, nbp + nbp)
-            imax = max(50, nbp) + 5   
+            imax = max(50, nbp) + 5
               do 10 i = 1, lime
               xl = real(m + i + i - 2, knd)
               d(i) = xl * (xl + 1.0e0_knd) / c2 + (2.0e0_knd * xl * (xl + 1.0e0_knd)- &
@@ -5087,7 +5087,7 @@ end if
            g(k) = g(i)
            g(i) = p
            end if
-         end do 
+         end do
 !
 !  locate oblate-like eigenvalues
          limp = 0
@@ -5175,7 +5175,7 @@ end if
              end do
            jlowf = j
            jlowg = j
-           end if 
+           end if
            if(iflag == 1) then
              do j = 1, imax - limp - 1
              if(real(gm(1)) - real(g(j)) < 0.0e0_knd) exit
@@ -5201,7 +5201,7 @@ end if
            if(iflag == -1) g(k) = gm(limp - i + 1)
            if(iflag == 1) g(k) = gm(i)
            end do
-160      continue         
+160      continue
          return
          end subroutine
 !
@@ -5368,7 +5368,7 @@ end if
 95      ifc = ifcs
         eigval = eigvals
         ncsave = -int(log10(eigtests + dec))
-100     continue    
+100     continue
         icomp = -int(log10(abs((eigval - eigst) / eigst) + dec))
         if(l == m .or. l == m + 1) ienr = imax
         idigc = ncsave
@@ -5381,7 +5381,7 @@ end if
           ienr = ienrs
           if(l == m .or. l == m + 1) imax = 1
           go to 110
-          end if 
+          end if
         itestm = -int(log10(abs((enrcs - enrs) / enrs)+ &
                  dec))
         if(itestm > ndec) itestm = ndec
@@ -5536,7 +5536,7 @@ end if
 260     continue
 !        return
 270     continue
-        if(icomp < 5) then  
+        if(icomp < 5) then
 if (output) then
         write(20, 280) l, m, c
 end if
@@ -5744,19 +5744,19 @@ end if
 !
 !  compute the d0(c|ml) or d1(c|ml)
         id01 = 0
-   	d01 = (1.0e0_knd, 0.0e0_knd)
+    d01 = (1.0e0_knd, 0.0e0_knd)
         if(lm2 == 0) go to 140
           do 130 kjl = 1, lm2
           kkjl = lm2 - kjl + 1
-    	  d01 = d01 / enr(kkjl)
-    	    if(abs(d01) > teste) then
+          d01 = d01 / enr(kkjl)
+            if(abs(d01) > teste) then
             d01 = d01 * testeo
             id01 = id01 + nfac
             end if
             if(abs(d01) < testeo) then
             d01 = d01 * teste
             id01 = id01 - nfac
-            end if 
+            end if
 130       continue
         iterm = int(log10(abs(d01)))
         d01 = d01 * (10.0e0_knd ** (-iterm))
@@ -5968,7 +5968,7 @@ end if
         end subroutine
 !
 !
-	subroutine gauss (n, ndec, x, w)
+    subroutine gauss (n, ndec, x, w)
 !
 !  purpose:     To evaluate the coordinates and weighting factors
 !               for an nth order Gaussian quadrature
@@ -5991,30 +5991,30 @@ end if
         imax = (n + 1) / 2
         pi = acos(-1.0_knd)
           do 40 i = 1, imax
-	  z = cos(pi * (i - 0.25e0_knd) / (n + 0.5e0_knd))
+      z = cos(pi * (i - 0.25e0_knd) / (n + 0.5e0_knd))
             do 20 j = 1, 30
             u = 0.0e0_knd
-	    v = 1.0e0_knd
-	      do 10 k = 1, n
-	      t = u
+        v = 1.0e0_knd
+          do 10 k = 1, n
+          t = u
               u = v
-	      v = ((k + k - 1) * z * u - (k - 1) * t) / k
-10   	      continue
+          v = ((k + k - 1) * z * u - (k - 1) * t) / k
+10            continue
             s = z * z - 1.0e0_knd
-	    der = n * (z * v - u) / s
-	    delta = -v / der - 0.5e0_knd * v * v * ((n * n * s - n * z * z - n) * v+ &
+        der = n * (z * v - u) / s
+        delta = -v / der - 0.5e0_knd * v * v * ((n * n * s - n * z * z - n) * v+ &
                     2.0e0_knd * n * z * u) / (der * der * der * s * s)
             z = z + delta
-	    if(abs(delta / z) < test) go to 30
+        if(abs(delta / z) < test) go to 30
 20          continue
 30        continue
-	  x(i) = -z
-	  x(n + 1 - i) = z
-	  w(i) = 2.0e0_knd / ((1.0e0_knd - z * z) * der * der)
-	  w(n + 1 - i) = w(i)
-40	  continue
-	return
-	end subroutine
+      x(i) = -z
+      x(n + 1 - i) = z
+      w(i) = 2.0e0_knd / ((1.0e0_knd - z * z) * der * der)
+      w(n + 1 - i) = w(i)
+40    continue
+    return
+    end subroutine
 !
 !
         subroutine pleg (m, lim, maxp, ndec, nex, limcsav, iopd, barg, narg, &
@@ -6161,24 +6161,24 @@ end if
 !
           if(limcsav >= lim) go to 30
           do 10 j = limcsav + 3, lim + 2
-      	  n = m + j - 3
-      	  n2 = n + n
-      	  n2p3 = n2 + 3
-      	  n2p1 = n2 + 1
-      	  n2m1 = n2 - 1
-      	  nmmm2 = n - mm2
-      	  nmmm1 = n - mm1
-      	  npmm1 = n + mm1
-      	  npm = n + m
-      	  npmm1 = n + mm1
+          n = m + j - 3
+          n2 = n + n
+          n2p3 = n2 + 3
+          n2p1 = n2 + 1
+          n2m1 = n2 - 1
+          nmmm2 = n - mm2
+          nmmm1 = n - mm1
+          npmm1 = n + mm1
+          npm = n + m
+          npmm1 = n + mm1
           npmp1 = n + m + 1
           npmp2 = npmp1 + 1
-      	  an2tnp1 = real(2 * n, knd) * real((n + 1), knd)
-      	  anden1 = real(nmmm2, knd) * real(nmmm1, knd)
-      	  anden2 = real(n2m1, knd) * anden1
-      	  alpha(j) = real(n2p3, knd) * real(n2p1, knd) / anden1
-      	  beta(j) = real(n2p1, knd) * (real(msqp1, knd) - an2tnp1) / anden2
-      	  gamma(j) = -real(n2p3, knd) * real(npm, knd) * real(npmm1, knd) / anden2
+          an2tnp1 = real(2 * n, knd) * real((n + 1), knd)
+          anden1 = real(nmmm2, knd) * real(nmmm1, knd)
+          anden2 = real(n2m1, knd) * anden1
+          alpha(j) = real(n2p3, knd) * real(n2p1, knd) / anden1
+          beta(j) = real(n2p1, knd) * (real(msqp1, knd) - an2tnp1) / anden2
+          gamma(j) = -real(n2p3, knd) * real(npm, knd) * real(npmm1, knd) / anden2
           coefa(j) = -real(npmp2, knd) / real(nmmm1, knd)
           coefb(j) = real(n2p3, knd) * real((n + 2), knd) / anden1
           coefc(j) = -real(npmp1, knd) * real(npmp2, knd) / anden1
@@ -6191,10 +6191,10 @@ end if
         iterm = 0
         if(m < 2) go to 30
           do jm = 2, m
-      	  term = (jm + jm - 1) * term
+          term = (jm + jm - 1) * term
             if(term > teste) then
-      	    term = term * testeo
-      	    iterm = iterm + nfac
+            term = term * testeo
+            iterm = iterm + nfac
             end if
           end do
         jterm = int(log10(term))
@@ -6208,7 +6208,7 @@ end if
 !   pr(k,j) = alpha(j)*barg(k)*barg(k) + beta(j) + gamma(j)/pr(k,j-2)
 !
           do 140 k = 1, narg
-      	  pnorm(k) = term
+          pnorm(k) = term
           ipnorm(k) = iterm
           pdnorm(k) = term
           ipdnorm(k) = iterm
@@ -6685,10 +6685,10 @@ end if
 20      step2 = (1.0e0_knd - step1) / (ngqs - 1)
 !
 !  calculation of scaling factors for the associated Legendre functions
-	pnorm(1) = 1.0e0_knd
-	pnorm(2) = 1.0e0_knd
-	ipnorm(1) = 0
-	ipnorm(2) = 0
+    pnorm(1) = 1.0e0_knd
+    pnorm(2) = 1.0e0_knd
+    ipnorm(1) = 0
+    ipnorm(2) = 0
         if(m == 0) go to 50
           do 40 n = 1, m
           an = real(n + n)
@@ -6701,8 +6701,8 @@ end if
           pnorm(2) = pnorm(2) * 10.0e0_knd ** (-iterm2)
           ipnorm(1) = ipnorm(1) + iterm1
           ipnorm(2) = ipnorm(2) + iterm2
-40	  continue
-50	twom = real(m + m)
+40    continue
+50  twom = real(m + m)
         pnorm(3) = pnorm(1) * (twom + real(2)) / real(2)
         iterm3 = int(log10(pnorm(3)))
         pnorm(3) = pnorm(3) * 10.0e0_knd ** (-iterm3)
@@ -6717,12 +6717,12 @@ end if
           ipnorm(il + 1) = ipnorm(il - 1) + iterm2
           pnorm(il) = pnorm(il) * 10.0e0_knd ** (-iterm1)
           pnorm(il + 1) = pnorm(il + 1) * 10.0e0_knd ** (-iterm2)
-60	  continue
-70	continue
+60    continue
+70  continue
 !
 !  calculation of the coefficients in the recursion relation used
 !  for the scaled associated Legendre functions
-	alpha(1) = (twom + 1.0e0_knd) * pnorm(1) / pnorm(2)
+    alpha(1) = (twom + 1.0e0_knd) * pnorm(1) / pnorm(2)
         alpha(1) = alpha(1) * 10.0e0_knd ** (ipnorm(1) - ipnorm(2))
         beta(1) = 0.0e0_knd
         alpha(2) = (twom + 3.0e0_knd) * pnorm(2) / (pnorm(3) * 2.0e0_knd)
@@ -6731,15 +6731,15 @@ end if
           do 80 il = 3, lim + 2
           alpha(il) = alpha(il - 2) * (twom + il - 1) * (twom + il + il - 1)* &
           (il - 2) / ((il - 1) * (twom + il) * (twom + il + il - 5))
-	  beta(il) = -(twom + il - 1) / (twom + il)
-80	  continue
+      beta(il) = -(twom + il - 1) / (twom + il)
+80    continue
 !
           do 90 il = 1, lim + 2, 2
           pint1(il) = (0.0e0_knd, 0.0e0_knd)
           pint2(il) = (0.0e0_knd, 0.0e0_knd)
           pint3(il + 1) = (0.0e0_knd, 0.0e0_knd)
           pint4(il + 1) = (0.0e0_knd, 0.0e0_knd)
-90	  continue
+90    continue
 !
 !  calculation of the scaling exponents for the spherical Bessel
 !  functions required for the four types of integrals
@@ -6747,9 +6747,9 @@ end if
         twomi = 1.0e0_knd
         if(m == 0) go to 110
           do 100 n = 1, m
-	  twomi = twomi * real(n + n - 1, knd) / real(n + n, knd)
+      twomi = twomi * real(n + n - 1, knd) / real(n + n, knd)
 100       continue
-110	continue
+110 continue
         arg = cc * sqrt(x2m1)
         darg = (1.0e0_knd, 0.0e0_knd) / arg
         ynorm1 = -cos(arg) * darg
@@ -6785,12 +6785,12 @@ end if
             step = step2
             end if
           etcoef1 = (etau + etal) / 2.0e0_knd
- 	  etcoef2 = (etau - etal) / 2.0e0_knd
+      etcoef2 = (etau - etal) / 2.0e0_knd
           coef = step
 !
 !  Gaussian quadrature integration over each step
             do 170 i = 1, ngau
- 	    etai = etcoef1 + xg(i) * etcoef2
+        etai = etcoef1 + xg(i) * etcoef2
             etais = etai * etai
             etaism1 = 1.0e0_knd - etais
             argb = x2m1 + etais
@@ -6931,12 +6931,12 @@ end if
               end do
 160         continue
 170         continue
-180	  continue
-190	continue
+180   continue
+190 continue
           do 200 il = 1, limi - 1, 2
           pint3(il + 1) = (pint2(il + 2) - beta(il + 1) * pint2(il)) &
                       /alpha(il + 1)
-200	  continue
+200   continue
 210     continue
 if (debug) then
         write(40, 220) ngau, step1, limi
@@ -6956,7 +6956,7 @@ end if
           rpint2(il) = (pint2(il) * (twom + il - 1)) / (pint2(il - 2) * (il - 1))
           rpint1(il + 1) = (pint3(il + 1) * (twom + il)) / (pint3(il - 1) * (il))
           rpint2(il + 1) = (pint4(il + 1) * (twom + il)) / (pint4(il - 1) * (il))
-240	  continue
+240   continue
         limi = limi - 1
         return
         end subroutine

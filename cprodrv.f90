@@ -1,10 +1,10 @@
 program cprodrv
     use param
     use complex_prolate_swf
-    
+
     implicit none
     integer      mmin, minc, mnum, lnum, ioprad, iopang, iopnorm, minacc, &
-                 ngau, ioparg, narg, maxd, maxdr, maxint, maxj, maxlp, maxm, & 
+                 ngau, ioparg, narg, maxd, maxdr, maxint, maxj, maxlp, maxm, &
                  maxmp, maxn, maxp, maxpdr, maxq, maxt, neta, jnenmax, ndec, &
                  nex, kindd, kindq, im, i, j, l, m, maxc, lnump
 
@@ -31,7 +31,7 @@ program cprodrv
     read(1,*) ioprad, iopang, iopnorm
     read(1,*) cc, x1
     if(iopang /= 0) read(1,*) ioparg, arg1, darg, narg
-        
+
     allocate (eta(narg), r1c(lnum), r1dc(lnum), r2c(lnum), r2dc(lnum))
     allocate (ir1e(lnum), ir1de(lnum), ir2e(lnum), ir2de(lnum), naccr(lnum))
     allocate (s1c(lnum, narg), s1dc(lnum, narg))
@@ -55,7 +55,7 @@ program cprodrv
     ngau = 200
     if(ioprad == 2) then
         lnump = max(lnum + maxm, 1000)
-        if(x1 >= 0.00065e0_knd) maxn = 2 * (lnump * (-18.5e0_knd - 20.0e0_knd * log10(x1)) & 
+        if(x1 >= 0.00065e0_knd) maxn = 2 * (lnump * (-18.5e0_knd - 20.0e0_knd * log10(x1)) &
                                         + 5 * ndec + 4 * maxm + c + 5000) + maxm + 5
         if(x1 > 0.08e0_knd) maxn = 2 * (lnump * (0.5e0_knd - 3.0e0_knd * log10(x1)) &
                                         + 5 * ndec + 4 * maxm + c + 1000) + maxm + 5
@@ -77,9 +77,9 @@ program cprodrv
     maxt = 1
     jnenmax = 10
     if(iopang /= 0) maxt = narg
-    
+
     if (iopang /= 0) then
-        do j = 1, narg  
+        do j = 1, narg
             eta(j) = arg1 + (j - 1) * darg
         end do
     end if
@@ -97,26 +97,26 @@ program cprodrv
 120         format(1x,'x = 'e23.14,'; c = ',e23.14, e23.14,'; m = ',i5)
             if(knd == kindq .and. ioprad /= 0) write(20, 130) x1 + 1.0e0_knd, cc, m
 130         format(1x,'x = 'e39.30,'; c = ',e39.30, e39.30,'; m = ',i5)
-            
+
             do i = 1, lnum
                 l = m + i - 1
-                
+
                 if(ioprad == 1) write(20, 186) l, r1c(i), ir1e(i), r1dc(i), ir1de(i), naccr(i)
 186             format(1x, i5, 2x, 2(f17.14, 1x, f17.14, i5, 2x), i4)
-                
+
                 if(ioprad == 2) write(20, 690) l, r1c(i), ir1e(i), r1dc(i), ir1de(i), r2c(i), ir2e(i), r2dc(i), ir2de(i), naccr(i)
 690             format(1x, i5, 2x, 2(f17.14, 1x, f17.14, i5, 2x),/,8x, 2(f17.14, 1x, f17.14, i5, 2x), i2, '  ')
-                
+
             end do
         end if
-            
+
         if (iopang /= 0) then
-            
+
             if(knd == kindd .and. iopang /= 0) write(30, 65) cc, m
 65          format(1x,'c = ',e23.14, e23.14,'; m = ',i5)
             if(knd == kindq .and. iopang /= 0) write(30, 70) cc, m
 70          format(1x,'c = ',e39.30, e39.30,'; m = ',i5)
-                
+
             do i = 1, lnum
                 l = m + i - 1
 
@@ -128,12 +128,12 @@ program cprodrv
                     if(iopang == 2) write(30, 760) eta(j), s1c(i,j), is1e(i,j), s1dc(i,j), is1de(i,j), naccs(i,j), naccds(i,j)
 750                 format(1x, f19.14, 2x, f17.14, 1x, f17.14, 2x, i5, 2x, i2)
 760                 format(1x, f19.14, 2x, f17.14, 1x, f17.14, 2x, i5, 2x, f17.14, 1x, f17.14, 2x, i5, 2x, i2, ', ', i2)
-                
+
                 end do
             end do
         end if
     end do
-    
+
     deallocate (is1e, is1de, naccs, naccds)
     deallocate (s1c, s1dc)
     deallocate (ir1e, ir1de, ir2e, ir2de, naccr)
