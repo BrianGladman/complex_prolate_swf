@@ -1895,11 +1895,11 @@ end if
               lisave = li
               if(ioprad == 2) then
                   nar(li) = naccr
-                  if (nacciop /= 0) nar(li) = -naccr 
+                  if (nacciop /= 0) nar(li) = -naccr
               end if
               if(ioprad == 1) then
                   nar(li) = naccr1
-                  if (nacciop /= 0) nar(li) = -naccr 
+                  if (nacciop /= 0) nar(li) = -naccr
               end if
 720           if(iopang == 0) go to 850
 !
