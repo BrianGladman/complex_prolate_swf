@@ -1091,7 +1091,7 @@ end if
               naccint = -int(log10(abs((wronc - wront) / wront) + dec)- &
                          0.5e0_knd)
               if(naccint < 0) naccint = 0
-              if(naccint > ndec) naccint = ndec
+              if(naccint > ndec - 1) naccint = ndec - 1
               naccinto = naccint
               nacccor = -int(log10(abs((wronca - wroncb) / wronca) + dec))
               if(nacccor < 0) nacccor = 0
@@ -1353,7 +1353,7 @@ end if
               naccneu = -int(log10(abs((wronc - wront) / wront) + dec)- &
                          0.5e0_knd)
               if(naccneu < 0) naccneu = 0
-              if(naccneu > ndec) naccneu = ndec
+              if(naccneu > ndec - 1) naccneu = ndec - 1
               naccneuo = naccneu
               nacccor = -int(log10(abs((wronca - wroncb) / wronca) + dec))
               nacccor = min(nacccor, naccrpl + 1)
@@ -3730,7 +3730,7 @@ end if
         wronc = wronca - wroncb
         naccleg = -int(log10(abs((wronc - wront) / wront) + dec))
         if(naccleg < 0) naccleg = 0
-        if(naccleg > ndec) naccleg = ndec
+        if(naccleg > ndec - 1) naccleg = ndec - 1
         nacclego = naccleg
         nacccor = -int(log10(abs(wronc / wronca) + dec))
         if(nacccor < 0) nacccor = 0
@@ -4669,7 +4669,7 @@ end if
         wronc = wronca - wroncb
         nacceta = -int(log10(abs((wronc - wront) / wront) + dec))
         if(nacceta < 0) nacceta = 0
-        if(nacceta > ndec) nacceta = ndec
+        if(nacceta > ndec - 1) nacceta = ndec - 1
         naccetao = nacceta
         nacccor = -int(log10(abs((wronca - wroncb) / wronca) + dec))
         if(nacccor < 0) nacccor = 0
