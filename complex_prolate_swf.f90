@@ -7,7 +7,7 @@ module complex_prolate_swf
                        r1c, ir1e, r1dc, ir1de, r2c, ir2e, r2dc, ir2de, naccr, &
                        s1c, is1e, s1dc, is1de, naccs, naccds)
 
-!      version 1.02 April 2021
+!      version 1.03 May 2021
 !
 !  subroutine version of the fortran program cprofcn developed about 2005 by
 !  arnie lee van buren with technical support from jeffrey boisvert. For more
@@ -1153,7 +1153,7 @@ end if
               naccint = -int(log10(abs((wronc - wront) / wront) + dec)- &
                          0.5e0_knd)
               if(naccint < 0) naccint = 0
-              if(naccint > ndec - 1) naccint = ndec - 1
+              if(naccint > ndec-1) naccint = ndec-1
               naccinto = naccint
               nacccor = -int(log10(abs((wronca - wroncb) / wronca) + dec))
               if(nacccor < 0) nacccor = 0
@@ -1415,7 +1415,7 @@ end if
               naccneu = -int(log10(abs((wronc - wront) / wront) + dec)- &
                          0.5e0_knd)
               if(naccneu < 0) naccneu = 0
-              if(naccneu > ndec - 1) naccneu = ndec - 1
+              if(naccneu > ndec-1) naccneu = ndec-1
               naccneuo = naccneu
               nacccor = -int(log10(abs((wronca - wroncb) / wronca) + dec))
               nacccor = min(nacccor, naccrpl + 1)
@@ -4733,7 +4733,7 @@ end if
         wronc = wronca - wroncb
         nacceta = -int(log10(abs((wronc - wront) / wront) + dec))
         if(nacceta < 0) nacceta = 0
-        if(nacceta > ndec - 1) nacceta = ndec - 1
+        if(nacceta > ndec-1) nacceta = ndec-1
         naccetao = nacceta
         nacccor = -int(log10(abs((wronca - wroncb) / wronca) + dec))
         if(nacccor < 0) nacccor = 0
@@ -6147,7 +6147,7 @@ end if
 !  the three term recursion relating the Legendre function ratios
 !
 !              m                m
-!   pr(k,j) = p    (barg(k)) / p  (barg(k))
+!   pr(k,j) = P    (barg(k)) / P  (barg(k))
 !              m+j-1            m+j-3
 !
 !  and calculate the coefficients coefa(j), coefb(j), coefc(j),
@@ -6155,8 +6155,13 @@ end if
 !  ratios of Legendre function derivatives
 !
 !               m                 m
-!   pdr(k,j) = p'    (barg(k)) / p'  (barg(k))
+!   pdr(k,j) = P'    (barg(k)) / P'  (barg(k))
 !               m+j-1             m+j-3
+!
+!  Note that pr(k,1) and pr(k,2) are not ratios but actually equal to
+!   m      m                                              m       m
+!  P  and P   . Also, pdr(k,1) and pdr(k,2) are equal to P'  and P' .
+!   m      m+1                                            m       m+1
 !
           if(limcsav >= lim) go to 30
           do 10 j = limcsav + 3, lim + 2
@@ -6224,11 +6229,11 @@ end if
 !
 !   calculate the corresponding ratios of first derviatives of
 !   successive Legendre functions of the same parity using the
-!   following relationship (except for eta equal to zero or unity,
-!   where special expressions are used, and except for when the
-!   magnitude of the argument barg is less than or equal to 0.1,
-!   where recursion on the ratios of successive first derivatives
-!   of the same parity is used instead)
+!   following relationship (except for (1) eta equal to zero or unity,
+!   where special expressions are used and (2) when the magnitude of the
+!   argument barg is <= 0.1 or (m+1)*barg*barg - 1 < 0.01, where recursion
+!   on the ratios of successive first derivatives of the same parity is
+!   used instead)
 !
 !              (coefa(j)+coefb(j)*barg(k)*barg(k))*pr(k,j)+coefc(j)
 !   pdr(k,j) = ----------------------------------------------------
@@ -6266,12 +6271,14 @@ end if
           jlow = 4
           go to 90
 80        pdr(k, 2) = am2p1 * ((rm + 1.0e0_knd) * bargs - 1.0e0_knd) / (rm * barg(k))
+          if(pdr(k, 2) == 0.0e0_knd) pdr(k, 2) = ten ** (-ndec)
           jlow = 3
+          if(abs((rm + 1.0e0_knd) * bargs - 1.0e0_knd) < 0.01e0_knd) go to 110
 90        continue
           if(abs(barg(k)) <= 0.1e0_knd) go to 110
             do 100 j = jlow, lim + 2
             den = (pr(k, j) + coefd(j) + coefe(j) * bargs)
-            if(den == 0.0e0_knd) den = 1.0e-50_knd
+            if(den == 0.0e0_knd) den = ten ** (- ndec)
             pdr(k, j) = ((coefa(j) + coefb(j) * bargs) * pr(k, j) + coefc(j)) / den
 100         continue
           go to 120
