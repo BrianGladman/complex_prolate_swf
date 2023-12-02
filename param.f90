@@ -1,7 +1,8 @@
-module param
-    integer, parameter :: knd = selected_real_kind(16)
-    integer, parameter :: knd1 = selected_real_kind(16)
+    module param
+    integer, parameter :: knd = selected_real_kind(8)
+    integer, parameter :: knd1 = selected_real_kind(8) 
     logical, parameter :: debug = .true.
     logical, parameter :: warn = .true.
-    logical, parameter :: output = .false.
-end module param
+    logical, parameter :: output = .true.
+    logical, parameter :: suffix = .true.
+    end module param

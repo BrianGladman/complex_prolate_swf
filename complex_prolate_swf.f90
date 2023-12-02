@@ -7,7 +7,7 @@ module complex_prolate_swf
                        r1c, ir1e, r1dc, ir1de, r2c, ir2e, r2dc, ir2de, naccr, &
                        s1c, is1e, s1dc, is1de, naccs, naccds)
 
-!      version 1.03 May 2021
+!      version 1.04 Oct 2023
 !
 !  subroutine version of the fortran program cprofcn developed about 2005 by
 !  arnie lee van buren with technical support from jeffrey boisvert. For more
@@ -70,6 +70,7 @@ module complex_prolate_swf
 !          lnum   : number of values desired for the degree l (integer)
 !                   if lnum is less than 2*(real(c)+aimag(c))/pi it
 !                   should chosen to be an even integer.
+!
 !          ioprad : (integer)
 !                 : =0 if radial functions are not computed
 !                 : =1 if radial functions of only the first
@@ -80,7 +81,12 @@ module complex_prolate_swf
 !
 !          x1     : x - 1, where x is the radial coordinate x (a nominal
 !                   value of 1.0d0 or 1.0q0 can be entered for x1 if ioprad
-!                   = 0) [real(knd)]
+!                   = 0) [real(knd)]. If x1 = 0.0e0_knd, i.e., x = 1.0e0_knd,
+!                   only radial functions of the first kind and their
+!                   first derivatives are calculated. They are equal to
+!                   zero unless m = 0. Radial functions of the second kind
+!                   and their first derivatives are infinite for all m.
+!                   Thus ioprad must be set equal to 1 when x = 1.0.
 !
 !          iopang : (integer)
 !                 : =0 if angular functions are not computed
@@ -423,9 +429,9 @@ end if
         use param
 !
 !  scalars
-        real(knd) aj1, aj2, ang, apcoef, apcoefn, api, c, coefme, coefmo, &
-                  coefn, dec, etaval, factor, pcoefe, pcoefet, &
-                  pcoefn, pcoefo, pdcoefe, pdcoefet, pdcoefo, pi, qdml, qml, &
+        real(knd) aj1, aj2, ang, apcoef, apcoefn, c, coefme, coefmo, &
+                  coefn, coefr1e, coefr1o, dec, etaval, factor, pcoefe, pcoefet, &
+                  pcoefn, pcoefo, pdcoefe, pdcoefet, pdcoefo, pi, qdml, qml, rl, &
                   rm, rm2, sgn, ten, termpq, t1, t2, t3, t4, t5, t6, t7, wm, x, xb, &
                   xbninp, x1
         real(knd1) t11, t21, t31, t41, t51, t61, t71
@@ -516,20 +522,25 @@ end if
                 limnsv(jnenmax), jelimsv(jnenmax)
 
         character chr_w, chr_e
-        chr_e = 'e'; chr_w = 'w'
+        if (suffix) then
+            chr_e = 'e'
+            chr_w = 'w'
+        else
+            chr_e = ' '
+            chr_w = ' '
+        end if
 
         dec = 10.0e0_knd ** (-ndec - 1)
         ten = 10.0e0_knd
         if(ioprad /= 0) x = x1 + 1.0e0_knd
         jtest = ndec - minacc - 2
         pi = acos(-1.0_knd)
-        api = pi / 180.0e0_knd
         c = abs(cc)
         c2 = cc * cc
         c4 = c2 * c2
         c21 = c2
         c41 = c4
-        nbp = int(2.0e0_knd * (abs(real(cc)) + abs(aimag(cc))) / 3.14q0)
+        nbp = int(2.0e0_knd * (abs(real(cc)) + abs(aimag(cc))) / 3.14e0_knd)
         imax = max(50, nbp) + 5
         lical = imax + imax
 !
@@ -615,7 +626,7 @@ end if
                       beta, gamma, coefa, coefb, coefc, coefd, coefe)
             limcsav = limps1
             iopd = 3
-90          if(ioprad == 0 .or. mi /= 1) go to 100
+90          if(ioprad == 0 .or. mi /= 1 .or. x1 == 0.0e0_knd) go to 100
             limj = lnum + 3 * ndec + int(c) + maxm
             xb = sqrt(x1 * (x1 + 2.0e0_knd))
             call sphbes(cc, xb, limj, maxj, maxlp, ndec, nex, sbesf, sbesdf, &
@@ -704,7 +715,7 @@ end if
               if(iflagbesb == 1 .and. iopbesb == 0 .and.  &
                   limdbesb > limdrad) limdrad = limdbesb
               limdang = 3 * ndec + int(c)
-              if(iopang /= 0 .and. li /= 1) limdang = jang + jang + 20+ &
+              if(iopang /= 0 .and. li /= 1) limdang = jang + jang + 20 + &
                                                   int(sqrt(c))
               if(iopang == 0) limd = limdrad
               if(ioprad == 0) limd = limdang
@@ -744,7 +755,7 @@ end if
 155           continue
               if(limd > maxp) limd = maxp
               if(ix == 0) limd = max(limd, max1e)
-              if(ix == 0) limd = max(limd, max1o)
+              if(ix == 1) limd = max(limd, max1o)
               if(limd > maxn) limd = maxn - 4
               if(2 * (limd / 2) /= limd) limd = limd - 1
 !
@@ -958,18 +969,13 @@ end if
                                        blisto1, glisto1, ioprad, ienro, &
                                        kindd, kindq, ndec, eigval, enr, &
                                        idigc, itestm, kflag)
+              if(li == lnum + 1) write(40,*) eigval
               eig(li) = eigval
               ieig(li) = idigc
-if (debug) then
-              if(knd == kindd .and. ioprad /= 0) write(40, 166) eigval
-166           format(10x,'eigenvalue =',e23.14, e23.14)
-              if(knd == kindq .and. ioprad /= 0) write(40, 170) eigval
-170           format(10x,'eigenvalue =',e39.30, e39.30)
-end if
               if(ix == 0) max1e = 2 * ienre + 20 + 2 * int(aimag(cc))
               if(ix == 1) max1o = 2 * ienro + 20 + 2 * int(aimag(cc))
-177           call dnorm (l, m, cc, limd, maxd, ndec, nex, enr, sgn, d01, id01, &
-                          dmfnorm, idmfe, dmlmf, idmlmfe, dfnorm, idfe, dmlf, &
+177           call dnorm (l, m, cc, limd, maxd, ndec, nex, ioprad, enr, sgn, d01, &
+                          id01, dmfnorm, idmfe, dmlmf, idmlmfe, dfnorm, idfe, dmlf, &
                           idmlfe, jmf, nsubmf, jfla, nsubf)
               jmf = max(jmf, jfla)
               jsub = max(nsubmf, nsubf)
@@ -979,6 +985,64 @@ end if
               if(l == m .and. nsubmf > jtest .and. iopleg /= 0) iopleg = 0
 !
 !  determine prolate radial functions of the first kind
+!     calculation of r1 and r1d when x = 1.0
+              if(x1 == 0.0e0_knd .and. m == 0) then
+               if(l == 0) coefr1e = 1.0e0_knd
+               if(l == 1) coefr1o = 1.0e0_knd
+               rl = real(l, knd)
+               if(ix == 0) then
+                if(l > 0) coefr1e = coefr1e * rl / (rl - 1.0e0_knd)
+                r1c(li) = coefr1e * d01 * dmlf
+                iterm = int(log10(abs(r1c(li))))
+                r1c(li) = r1c(li) * (10.0e0_knd ** (-iterm))
+                ir1e(li) = id01 + idmlfe + iterm
+                r1dc(li) = cc * cc * coefr1e * d01 * dmlf * ((enr(1) / 15.0e0_knd)- &
+                           (1.0e0_knd / 3.0e0_knd))
+                iterm = int(log10(abs(r1dc(li))))
+                r1dc(li) = r1dc(li) * (10.0e0_knd ** (-iterm))
+                ir1de(li) = id01 + idmlfe + iterm
+               end if
+               if(ix == 1) then
+                if(l > 1) coefr1o = coefr1o * (rl - 1.0e0_knd) / rl
+                r1c(li) = cc * coefr1o * d01 * dmlf / 3.0e0_knd
+                iterm = int(log10(abs(r1c(li))))
+                r1c(li) = r1c(li) * (10.0e0_knd ** (-iterm))
+                ir1e(li) = id01 + idmlfe + iterm
+                r1dc(li) = cc * cc * cc * coefr1o * d01 * dmlf * ((enr(1) / 35.0e0_knd)- &
+                           (1.0e0_knd / 15.0e0_knd) + (1.0e0_knd / (3.0e0_knd * cc * cc)))
+                iterm = int(log10(abs(r1dc(li))))
+                r1dc(li) = r1dc(li) * (10.0e0_knd ** (-iterm))
+                ir1de(li) = id01 + idmlfe + iterm
+               end if
+               if(abs(r1c(li)) < 1.0e0_knd) then
+                r1c(li) = r1c(li) * 10.0e0_knd
+                ir1e(li) = ir1e(li) - 1
+               end if
+               if(abs(r1dc(li)) < 1.0e0_knd) then
+                r1dc(li) = r1dc(li) * 10.0e0_knd
+                ir1de(li) = ir1de(li) - 1
+               end if
+               naccr1 = ndec - nsubf - 2
+               if(naccr1 < 0) naccr1 = 0
+              end if
+              if(x1 == 0.0e0_knd .and. m /= 0) then
+               r1c(li) = (0.0e0_knd, 0.0e0_knd)
+               ir1e(li) = 0
+               r1dc(li) = (0.0e0_knd, 0.0e0_knd)
+               ir1de(li) = 0
+               naccr1 = ndec
+              end if
+              if(x1 == 0.0e0_knd) then
+if (debug) then
+              write(40, 178) naccr1
+              if(knd == kindd) write(40, 180) r1c(li), ir1e(li), r1dc(li), &
+                     ir1de(li)
+              if(knd == kindq) write(40, 181) r1c(li), ir1e(li), r1dc(li), &
+                     ir1de(li)
+end if
+               go to 185
+              end if
+!     calculation of r1 and r1d when x /= 1.0
               if(li == 1) limr1 = 3 * ndec + int(c)
               if(li /= 1) limr1 = jbesa + jbesa + 20 + c / 25
               call r1besa(l, m, cc, x1, limr1, maxd, enr, maxj, maxlp, ndec, nex, &
@@ -994,10 +1058,10 @@ if (debug) then
                      ' digits.')
               if(knd == kindd) write(40, 180) r1ca, ir1ea, r1dca, ir1dea
               if(knd == kindq) write(40, 181) r1ca, ir1ea, r1dca, ir1dea
-180           format(10x,'r1 = ',f17.14, f17.14, i6, 2x,'r1d = ', &
-                      f17.14, f17.14, i6)
-181           format(10x,'r1 = ',f33.30, f33.30, i6,/,10x,'r1d = ', &
-                      f33.30, f33.30, i6)
+180           format(10x,'r1 = ',f17.14, 1x, f17.14, i6, 2x,'r1d = ', &
+                      f17.14, 1x, f17.14, i6)
+181           format(10x,'r1 = ',f33.30, 1x, f33.30, i6,/,10x,'r1d = ', &
+                      f33.30, 1x, f33.30, i6)
 end if
               ichoicer1 = 1
               iflagbesb = 0
@@ -1194,27 +1258,27 @@ if (debug) then
                 if(nacccor == 0) write(40, 205) naccout, r2ic, ir2ie, &
                                                 r2dic, ir2die
 205             format(15x,'accuracy =',i3, &
-                       ' decimal digits.'/,10x,'r2 = ', f17.14, f17.14, &
-                       i6, 2x,'r2d = ',f17.14, f17.14, i6)
+                       ' decimal digits.'/,10x,'r2 = ', f17.14, 1x, f17.14, &
+                       i6, 2x,'r2d = ',f17.14, 1x, f17.14, i6)
                 if(nacccor > 0) write(40, 210) naccout, nacccor, r2ic, &
                                                 ir2ie, r2dic, ir2die
 210             format(15x,'accuracy =',i3,' decimal digits, adjusted ', &
                        'for',i3,' subtraction digits in forming ', &
-                       'Wronskian',/,10x,'r2 = ',f17.14, f17.14, i6, &
-                       2x,'r2d = ',f17.14, f17.14, i6)
+                       'Wronskian',/,10x,'r2 = ',f17.14, 1x, f17.14, i6, &
+                       2x,'r2d = ',f17.14, 1x, f17.14, i6)
                 end if
                 if (knd == kindq) then
                 if(nacccor == 0) write(40, 215) naccout, r2ic, ir2ie, &
                                                 r2dic, ir2die
 215             format(15x,'accuracy =',i3, &
-                       ' decimal digits.'/,10x,'r2 = ', f33.30, f33.30, &
-                       i6,/,10x,'r2d = ',f33.30, f33.30, i6)
+                       ' decimal digits.'/,10x,'r2 = ', f33.30, 1x, f33.30, &
+                       i6,/,10x,'r2d = ',f33.30, 1x, f33.30, i6)
                 if(nacccor > 0) write(40, 220) naccout, nacccor, r2ic, &
                                                 ir2ie, r2dic, ir2die
 220             format(15x,'accuracy =',i3,' decimal digits, adjusted ', &
                        'for',i3,' subtraction digits in forming ', &
-                       'Wronskian',/,10x,'r2 = ',f33.30, f33.30, i6,/, &
-                       10x,'r2d = ',f33.30, f33.30, i6)
+                       'Wronskian',/,10x,'r2 = ',f33.30, 1x, f33.30, i6,/, &
+                       10x,'r2d = ',f33.30, 1x, f33.30, i6)
                 end if
 end if
 230           continue
@@ -1329,28 +1393,28 @@ if (debug) then
                 if(nacccor == 0) write(40, 330) naccout, r2lc, ir2le, &
                                                 r2dlc, ir2dle
 330             format(15x,'accuracy =',i3, &
-                       ' decimal digits.'/,10x,'r2 = ', f17.14, f17.14, &
-                       i6, 2x,'r2d = ',f17.14, f17.14, i6)
+                       ' decimal digits.'/,10x,'r2 = ', f17.14, 1x, f17.14, &
+                       i6, 2x,'r2d = ',f17.14, 1x, f17.14, i6)
                 if(nacccor > 0) write(40, 340) naccout, nacccor, r2lc, &
                                                 ir2le, r2dlc, ir2dle
 340             format(15x,'accuracy =',i3, &
                       ' decimal digits, adjusted for',i3,' subtraction', &
                       ' digits in forming Wronskian',/,10x,'r2 = ', &
-                       f17.14, f17.14, i6, 2x,'r2d = ',f17.14, f17.14, &
+                       f17.14, 1x, f17.14, i6, 2x,'r2d = ',f17.14, 1x, f17.14, &
                        i6)
                 end if
                 if(knd == kindq) then
                 if(nacccor == 0) write(40, 350) naccout, r2lc, ir2le, &
                                                 r2dlc, ir2dle
 350             format(15x,'accuracy =',i3, &
-                       ' decimal digits.'/,10x,'r2 = ', f33.30, f33.30, &
-                       i6,/,10x,'r2d = ',f33.30, f33.30, i6)
+                       ' decimal digits.'/,10x,'r2 = ', f33.30, 1x, f33.30, &
+                       i6,/,10x,'r2d = ',f33.30, 1x, f33.30, i6)
                 if(nacccor > 0) write(40, 355) naccout, nacccor, r2lc, &
                                                 ir2le, r2dlc, ir2dle
 355             format(15x,'accuracy =',i3, &
                       ' decimal digits, adjusted for',i3,' subtraction', &
                       ' digits in forming Wronskian',/,10x,'r2 = ', &
-                       f33.30, f33.30, i6,/,10x,'r2d = ',f33.30, f33.30, &
+                       f33.30, 1x, f33.30, i6,/,10x,'r2d = ',f33.30, 1x, f33.30, &
                        i6)
                 end if
 end if
@@ -1463,28 +1527,28 @@ if (debug) then
                 if(nacccor == 0) write(40, 400) naccout, r2nc, ir2ne, &
                                                 r2dnc, ir2dne
 400             format(15x,'Wronskian accuracy =',i3, &
-                      ' decimal digits.'/,10x,'r2 = ', f17.14, f17.14, &
-                      i6, 2x,'r2d = ',f17.14, f17.14, i6)
+                      ' decimal digits.'/,10x,'r2 = ', f17.14, 1x, f17.14, &
+                      i6, 2x,'r2d = ',f17.14, 1x, f17.14, i6)
                 if(nacccor > 0) write(40, 405) naccout, nacccor, r2nc, &
                                                 ir2ne, r2dnc, ir2dne
 405             format(15x,'accuracy =',i3, &
                       ' decimal digits, adjusted for',i3,' subtraction', &
                       ' digits in forming Wronskian',/,10x,'r2 = ', &
-                      f17.14, f17.14, 2x, i6, 2x,'r2d = ',f17.14, f17.14, &
+                      f17.14, 1x, f17.14, 2x, i6, 2x,'r2d = ',f17.14, 1x, f17.14, &
                       2x, i6)
                 end if
                 if(knd == kindq) then
                 if(nacccor == 0) write(40, 410) naccout, r2nc, ir2ne, &
                                                 r2dnc, ir2dne
 410             format(15x,'Wronskian accuracy =',i3, &
-                      ' decimal digits.'/,10x,'r2 = ', f33.30, f33.30, &
-                      i6,/,10x,'r2d = ',f33.30, f33.30, i6)
+                      ' decimal digits.'/,10x,'r2 = ', f33.30, 1x, f33.30, &
+                      i6,/,10x,'r2d = ',f33.30, 1x, f33.30, i6)
                 if(nacccor > 0) write(40, 415) naccout, nacccor, r2nc, &
                                                 ir2ne, r2dnc, ir2dne
 415             format(15x,'accuracy =',i3, &
                       ' decimal digits, adjusted for',i3,' subtraction', &
                       ' digits in forming Wronskian',/,10x,'r2 = ', &
-                      f33.30, f33.30, i6,/,10x,'r2d = ',f33.30, f33.30, &
+                      f33.30, 1x, f33.30, i6,/,10x,'r2d = ',f33.30, 1x, f33.30, &
                       i6)
                 end if
 end if
@@ -1892,16 +1956,10 @@ end if
               naccrp = naccr
               naccrplp = naccrpl
               naccr1p = naccr1
-              lisave = li
-              if(ioprad == 2) then
-                  nar(li) = naccr
-                  if (nacciop /= 0) nar(li) = -naccr
-              end if
-              if(ioprad == 1) then
-                  nar(li) = naccr1
-                  if (nacciop /= 0) nar(li) = -naccr
-              end if
-720           if(iopang == 0) go to 850
+              if(ioprad == 2) nar(li) = naccr
+              if(ioprad == 1) nar(li) = naccr1
+720           lisave = li
+              if(iopang == 0) go to 850
 !
 !  determine first kind prolate angular function
               if(l == m) lims1 = 3 * ndec + int(c)
@@ -2892,7 +2950,7 @@ if (debug) then
 end if
         iterm = int(log10(abs(r1dc)))
         ir1de = ir1e + iterm
-    r1dc = r1dc * 10.0e0_knd ** (-iterm)
+  r1dc = r1dc * 10.0e0_knd ** (-iterm)
           if(abs(real(r1dc)) > 10.0e0_knd .or. abs(aimag(r1dc)) >  &
               10.0e0_knd) then
           r1dc = r1dc / 10.0e0_knd
@@ -3024,7 +3082,7 @@ end if
         if(m == 0) go to 20
           do 10 i = 1, m
           ri = real(i)
-      coefn = coefn / (ri + ri)
+          coefn = coefn / (ri + ri)
           iterm = int(log10(abs(coefn)))
           coefn = coefn * 10.0e0_knd ** (-iterm)
 10        icoefn = icoefn + iterm
@@ -3033,7 +3091,7 @@ end if
         if(ix == 1) coefa = (rm2 + 3.0e0_knd) * coefn
         if((ix == 0) .and. (2 * (lm2 / 2) /= lm2)) coefa = -coefa
         if((ix == 1) .and. (2 * ((l - m - 1) / 4) /= (l - m - 1) / 2)) coefa = -coefa
-    coefl = coefa / d01
+        coefl = coefa / d01
         icoefl = -id01 + icoefn
         dec = 10.0e0_knd ** (-ndec - 1)
         jlow = lm2 + 1
@@ -3105,7 +3163,7 @@ end if
           if(iterm < 0) isubd = max(isubdr, isubdi + iterm)
           if(iterm > 0) isubd = max(isubdi, isubdr - iterm)
           end if
-    r2temp = r2temp * coefl * pnorm(l - m + 1)
+        r2temp = r2temp * coefl * pnorm(l - m + 1)
         if(ix == 0) r2temp = r2temp * pint1(l - m + 1)
         if(ix == 1) r2temp = r2temp * pint3(l - m + 1) * x
         iterm = int(log10(abs(r2temp)))
@@ -3794,7 +3852,7 @@ end if
         wronc = wronca - wroncb
         naccleg = -int(log10(abs((wronc - wront) / wront) + dec))
         if(naccleg < 0) naccleg = 0
-        if(naccleg > ndec - 1) naccleg = ndec - 1
+        if(naccleg > ndec-1) naccleg = ndec-1
         nacclego = naccleg
         nacccor = -int(log10(abs(wronc / wronca) + dec))
         if(nacccor < 0) nacccor = 0
@@ -4156,7 +4214,7 @@ end if
              dmfnorm) * 10.0e0_knd ** (ineue(l + 1) + ipcoefn - idmfe+iscale-ir2e)
         iterm = int(log10(abs(r2dc)))
         ir2de = ir2e + iterm
-    r2dc = r2dc * 10.0e0_knd ** (-iterm)
+        r2dc = r2dc * 10.0e0_knd ** (-iterm)
           if(abs(real(r2dc)) > 10.0e0_knd .or. abs(aimag(r2dc)) >  &
               10.0e0_knd) then
           r2dc = r2dc / 10.0e0_knd
@@ -4715,7 +4773,7 @@ end if
         iterm = 0
         if(r2dc /= (0.0e0_knd, 0.0e0_knd)) iterm = int(log10(abs(r2dc)))
         ir2de = ir2e + iterm
-    r2dc = r2dc * 10.0e0_knd ** (-iterm)
+        r2dc = r2dc * 10.0e0_knd ** (-iterm)
 if (debug) then
         write(40, 140) jmax, jden, lim, js, jtestm, naccns1, jds, jtestdm, &
                       naccns2, naccn, naccd
@@ -5217,8 +5275,10 @@ end if
 !               c     : complex c
 !               limd  : number of enr values computed
 !               maxd  : dimension of enr,blist,glist arrays
-!               blist : coefficients used in computing d coefficients
-!               glist : coefficients used in computing d coefficients
+!               blist : knd coefficients used in computing d coefficients
+!               glist : knd coefficients used in computing d coefficients
+!               blist1: knd1 coefficients used in computine d coefficients
+!               glist1: knd1 coefficients used in computing d coefficients
 !               eigval: estimated value of the eigenvalue
 !               ioprad: integer equal to 0 if radial functions are not
 !                       desired; equal to 1 if radial functions of the
@@ -5247,17 +5307,15 @@ end if
 !                       value of l
 !               kflag : flag used to control the arithmetic used in
 !                       the Bouwkamp procedure.
+!                       Initially set equal to 0 for l = m when running
+!                       cprofcn in double precision arithmetic with knd1
+!                       equal to the kind value for quadruple precision.
 !                       Set equal to one when running cprofcn in double
 !                       precision arithmetic but using quadruple
 !                       precision for the Bouwkamp procedure. Here knd1
 !                       has been set equal to the kind value for
 !                       quadruple precision.
-!                       Set equal to zero or two when the Bouwkamp
-!                       procedure is run in single precision arithmetic.
-!                       set equal to 2 when running cprofcn in quadruple
-!                       precision where both knd and knd1 = 16.
-!                       Also set equal to 2 when running in double
-!                       precision with both knd and knd1 = 8.
+!                       set equal to 2 when running cprofcn where knd = knd1.
 !
 !
         use param
@@ -5275,6 +5333,7 @@ end if
         eigst = eigval
         eigvals = eigval
         dec = 10.0e0_knd ** (-ndec - 1)
+        nbp = int(2.0e0_knd * (abs(real(c)) + abs(aimag(c))) / 3.14e0_knd)
         eigdec = dec * 10.0e0_knd
         ndec1 = precision(eigval1)
         dec1 = 10.0e0_knd1 ** (-ndec1 - 1)
@@ -5346,7 +5405,7 @@ end if
 !
 !  eigenvalue accurate enough?
         eigtest = abs(dl / eigval)
-        if(eigtest < eigdec) then
+        if(eigtest <= eigdec) then
         eigval = dl + eigval
         enrcs = enrc
         enrs = enr(irio)
@@ -5467,15 +5526,25 @@ end if
 150     continue
 if (debug) then
         if(knd == kindd) then
-          write(40, 180) l, eigst, idigc, ifc
-180       format(1x,'l = ',i4,' eigen. estimate',e23.14, e23.14, &
+          if(ioprad /= 0) write(40, 160) l, eigst, idigc, ifc
+          if(ioprad == 0) write(50, 160) l, eigst, idigc, ifc
+160       format(1x,'l = ',i4,' eigen. estimate',e23.14, e23.14, &
                  /,10x,'conv. to',i3,' dig. at ifc =',i3)
           end if
           if(knd == kindq) then
-          write(40, 190) l, eigst, idigc, ifc
-190       format(1x,'l = ',i4,' eigen. estimate',e39.30, e39.30, &
+          if(ioprad /= 0) write(40, 170) l, eigst, idigc, ifc
+          if(ioprad == 0) write(50, 170) l, eigst, idigc, ifc
+170       format(1x,'l = ',i4,' eigen. estimate',e39.30, e39.30, &
                  /,10x,'conv. to',i3,' dig. at ifc =',i3)
           end if
+end if
+if (debug) then
+              if(knd == kindd .and. ioprad /= 0) write(40, 180) eigval
+              if(knd == kindd .and. ioprad == 0) write(50, 180) eigval
+180           format(10x,'eigenvalue =',e23.14, e23.14)
+              if(knd == kindq .and. ioprad /= 0) write(40, 190) eigval
+              if(knd == kindq .and. ioprad == 0) write(50, 190) eigval
+190           format(10x,'eigenvalue =',e39.30, e39.30)
 end if
 !
 !  calculate the d coefficient ratios (enr)
@@ -5536,25 +5605,23 @@ end if
 !        return
 270     continue
         if(icomp < 5) then
-if (output) then
-        write(20, 280) l, m, c
-end if
 if (debug) then
-        write(40, 280) l, m, c
+        if(ioprad /= 0) write(40, 280) l, m, c, icomp
 end if
 if (warn) then
-        write(60, 280) l, m, c
+        write(60, 280) l, m, c, icomp
 end if
-280     format(1x,'error in eigenvalue at l = ',i5, 2x,'m = ',i5, 2x, &
-               'c = ',e25.15, e25.15)
+280     format(1x,'possible error in eigenvalue at l = ',i5, 2x,'m = ',i5, 2x, &
+               'c = ',e25.15, e25.15, /5x,'converged eigenvalue ', &
+               'only agreed with its estimate to ', i3, ' digits')
         end if
         return
         end subroutine
 !
 !
-        subroutine dnorm (l, m, c, limd, maxd, ndec, nex, enr, sgn, d01, id01, &
-                          dmfnorm, idmfe, dmlmf, idmlmfe, dfnorm, idfe, dmlf, &
-                          idmlfe, jmf, nsubmf, jfla, nsubf)
+        subroutine dnorm (l, m, c, limd, maxd, ndec, nex, ioprad, enr, sgn, d01, &
+                          id01, dmfnorm, idmfe, dmlmf, idmlmfe, dfnorm, idfe, &
+                          dmlf, idmlfe, jmf, nsubmf, jfla, nsubf)
 !
 !  purpose:     to compute unscaled d coefficient ratios using scaled
 !               ratios, to compute the Morse-Feshbach normalization
@@ -5575,6 +5642,8 @@ end if
 !               maxd    : dimension of enr array
 !               ndec    : number of decimal digits for real(knd)
 !               nex     : maximum exponent for real(knd)
+!               ioprad  : = 0 if radial functions were not requested,
+!                         equal to 1 or 2 otherwise
 !               enr     : array of scaled d coefficient ratios
 !
 !     output:   enr     : array of unscaled d coefficient ratios
@@ -5693,7 +5762,7 @@ end if
         dmlmf = 1.0e0_knd / dmfnorm
         idmlmfe = -idmfe
 if (debug) then
-        write(40, 70) jmf, nsubmf
+        if(ioprad /= 0) write(40, 70) jmf, nsubmf
 70      format(28x'Morse-Feshbach norm. converged in ', &
                i6,' terms with ',i3,' digits subt. error.')
 end if
@@ -5736,7 +5805,7 @@ end if
         dmlf = 1.0e0_knd / dfnorm
         idmlfe = -idfe
 if (debug) then
-        write(40, 120) jfla, nsubf
+        if(ioprad /= 0) write(40, 120) jfla, nsubf
 120     format(28x,'Flammer norm. converged in ',i6,' terms; ', &
                'with ',i2,' digits subt. error.')
 end if
@@ -5747,8 +5816,8 @@ end if
         if(lm2 == 0) go to 140
           do 130 kjl = 1, lm2
           kkjl = lm2 - kjl + 1
-          d01 = d01 / enr(kkjl)
-            if(abs(d01) > teste) then
+        d01 = d01 / enr(kkjl)
+          if(abs(d01) > teste) then
             d01 = d01 * testeo
             id01 = id01 + nfac
             end if
@@ -5967,7 +6036,7 @@ end if
         end subroutine
 !
 !
-    subroutine gauss (n, ndec, x, w)
+  subroutine gauss (n, ndec, x, w)
 !
 !  purpose:     To evaluate the coordinates and weighting factors
 !               for an nth order Gaussian quadrature
@@ -5990,30 +6059,30 @@ end if
         imax = (n + 1) / 2
         pi = acos(-1.0_knd)
           do 40 i = 1, imax
-      z = cos(pi * (i - 0.25e0_knd) / (n + 0.5e0_knd))
+    z = cos(pi * (i - 0.25e0_knd) / (n + 0.5e0_knd))
             do 20 j = 1, 30
             u = 0.0e0_knd
-        v = 1.0e0_knd
-          do 10 k = 1, n
-          t = u
+      v = 1.0e0_knd
+        do 10 k = 1, n
+        t = u
               u = v
-          v = ((k + k - 1) * z * u - (k - 1) * t) / k
-10            continue
+        v = ((k + k - 1) * z * u - (k - 1) * t) / k
+10          continue
             s = z * z - 1.0e0_knd
-        der = n * (z * v - u) / s
-        delta = -v / der - 0.5e0_knd * v * v * ((n * n * s - n * z * z - n) * v+ &
+      der = n * (z * v - u) / s
+      delta = -v / der - 0.5e0_knd * v * v * ((n * n * s - n * z * z - n) * v+ &
                     2.0e0_knd * n * z * u) / (der * der * der * s * s)
             z = z + delta
-        if(abs(delta / z) < test) go to 30
+      if(abs(delta / z) < test) go to 30
 20          continue
 30        continue
-      x(i) = -z
-      x(n + 1 - i) = z
-      w(i) = 2.0e0_knd / ((1.0e0_knd - z * z) * der * der)
-      w(n + 1 - i) = w(i)
+    x(i) = -z
+    x(n + 1 - i) = z
+    w(i) = 2.0e0_knd / ((1.0e0_knd - z * z) * der * der)
+    w(n + 1 - i) = w(i)
 40    continue
-    return
-    end subroutine
+  return
+  end subroutine
 !
 !
         subroutine pleg (m, lim, maxp, ndec, nex, limcsav, iopd, barg, narg, &
@@ -6691,10 +6760,10 @@ end if
 20      step2 = (1.0e0_knd - step1) / (ngqs - 1)
 !
 !  calculation of scaling factors for the associated Legendre functions
-    pnorm(1) = 1.0e0_knd
-    pnorm(2) = 1.0e0_knd
-    ipnorm(1) = 0
-    ipnorm(2) = 0
+  pnorm(1) = 1.0e0_knd
+  pnorm(2) = 1.0e0_knd
+  ipnorm(1) = 0
+  ipnorm(2) = 0
         if(m == 0) go to 50
           do 40 n = 1, m
           an = real(n + n)
@@ -6728,7 +6797,7 @@ end if
 !
 !  calculation of the coefficients in the recursion relation used
 !  for the scaled associated Legendre functions
-    alpha(1) = (twom + 1.0e0_knd) * pnorm(1) / pnorm(2)
+  alpha(1) = (twom + 1.0e0_knd) * pnorm(1) / pnorm(2)
         alpha(1) = alpha(1) * 10.0e0_knd ** (ipnorm(1) - ipnorm(2))
         beta(1) = 0.0e0_knd
         alpha(2) = (twom + 3.0e0_knd) * pnorm(2) / (pnorm(3) * 2.0e0_knd)
@@ -6737,7 +6806,7 @@ end if
           do 80 il = 3, lim + 2
           alpha(il) = alpha(il - 2) * (twom + il - 1) * (twom + il + il - 1)* &
           (il - 2) / ((il - 1) * (twom + il) * (twom + il + il - 5))
-      beta(il) = -(twom + il - 1) / (twom + il)
+    beta(il) = -(twom + il - 1) / (twom + il)
 80    continue
 !
           do 90 il = 1, lim + 2, 2
@@ -6753,7 +6822,7 @@ end if
         twomi = 1.0e0_knd
         if(m == 0) go to 110
           do 100 n = 1, m
-      twomi = twomi * real(n + n - 1, knd) / real(n + n, knd)
+    twomi = twomi * real(n + n - 1, knd) / real(n + n, knd)
 100       continue
 110 continue
         arg = cc * sqrt(x2m1)
@@ -6791,12 +6860,12 @@ end if
             step = step2
             end if
           etcoef1 = (etau + etal) / 2.0e0_knd
-      etcoef2 = (etau - etal) / 2.0e0_knd
+          etcoef2 = (etau - etal) / 2.0e0_knd
           coef = step
 !
 !  Gaussian quadrature integration over each step
             do 170 i = 1, ngau
-        etai = etcoef1 + xg(i) * etcoef2
+            etai = etcoef1 + xg(i) * etcoef2
             etais = etai * etai
             etaism1 = 1.0e0_knd - etais
             argb = x2m1 + etais
