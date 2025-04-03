@@ -7,8 +7,7 @@ module param
 end module param
 
 program cprofcn
-!      version 1.02 April 2021
-!
+!      version 1.05 Dec 2023
     use param
 
 !  Originally developed about 2005 by arnie lee van buren with
@@ -107,7 +106,12 @@ program cprofcn
 !                   (10.0e0_knd,1.0e0_knd)
 !          x1     : value of the radial coordinate x minus one [real(knd)]
 !                   (a nominal value of 1.0e0_knd can be entered for x1
-!                   if ioprad = 0)
+!                   if ioprad = 0). If x1 = 0.0e0_knd, i.e., x = 1.0e0_knd,
+!                   only radial functions of the first kind and their
+!                   first derivatives are calculated. They are equal to
+!                   zero unless m = 0. Radial functions of the second kind
+!                   and their first derivatives are infinite for all m.
+!                   Thus ioprad must be set equal to 1 when x = 1.0.
 !
 !       line 4:
 !          ioparg : (integer)
@@ -173,6 +177,7 @@ end if
         read(1,*) ioprad, iopang, iopnorm
         read(1,*) cc, x1
         if(iopang /= 0) read(1,*) ioparg, arg1, darg, narg
+        if(x1 == 0.0e0_knd .and. ioprad == 2) ioprad = 1
 !
 !  Here is where the user sets kindd, the number of bytes available
 !  in double precision data for the computer that cprofcn is run on.
@@ -359,9 +364,9 @@ end if
         use param
 !
 !  scalars
-        real(knd) aj1, aj2, ang, apcoef, apcoefn, api, arg1, c, coefme, coefmo, &
-                  coefn, darg, dec, etaval, factor, pcoefe, pcoefet, &
-                  pcoefn, pcoefo, pdcoefe, pdcoefet, pdcoefo, pi, qdml, qml, &
+        real(knd) aj1, aj2, ang, apcoef, apcoefn, arg1, c, coefme, coefmo, &
+                  coefn, coefr1e, coefr1o, darg, dec, etaval, factor, pcoefe, pcoefet, &
+                  pcoefn, pcoefo, pdcoefe, pdcoefet, pdcoefo, pi, qdml, qml, rl, &
                   rm, rm2, sgn, ten, termpq, t1, t2, t3, t4, t5, t6, t7, wm, x, xb, &
                   xbninp, x1
         real(knd1) t11, t21, t31, t41, t51, t61, t71
@@ -456,13 +461,12 @@ end if
         if(ioprad /= 0) x = x1 + 1.0e0_knd
         jtest = ndec - minacc - 2
         pi = acos(-1.0_knd)
-        api = pi / 180.0e0_knd
         c = abs(cc)
         c2 = cc * cc
         c4 = c2 * c2
         c21 = c2
         c41 = c4
-        nbp = int(2.0e0_knd * (abs(real(cc)) + abs(aimag(cc))) / 3.14q0)
+        nbp = int(2.0e0_knd * (abs(real(cc)) + abs(aimag(cc))) / 3.14e0_knd)
         imax = max(50, nbp) + 5
         lical = imax + imax
 !
@@ -470,7 +474,7 @@ end if
           if(iopang == 0) go to 20
             do jarg = 1, narg
             arg(jarg) = arg1 + (jarg - 1) * darg
-            if(ioparg == 0) barg(jarg) = cos(arg(jarg) * api)
+            if(ioparg == 0) barg(jarg) = cos(arg(jarg) * pi / 180.0e0_knd)
             if(ioparg == 1) barg(jarg) = arg(jarg)
             end do
 20        continue
@@ -553,7 +557,7 @@ end if
                       beta, gamma, coefa, coefb, coefc, coefd, coefe)
             limcsav = limps1
             iopd = 3
-90          if(ioprad == 0 .or. mi /= 1) go to 100
+90          if(ioprad == 0 .or. mi /= 1 .or. x1 == 0.0e0_knd) go to 100
             limj = lnum + 3 * ndec + int(c) + maxm
             xb = sqrt(x1 * (x1 + 2.0e0_knd))
             call sphbes(cc, xb, limj, maxj, maxlp, ndec, nex, sbesf, sbesdf, &
@@ -642,7 +646,7 @@ end if
               if(iflagbesb == 1 .and. iopbesb == 0 .and.  &
                   limdbesb > limdrad) limdrad = limdbesb
               limdang = 3 * ndec + int(c)
-              if(iopang /= 0 .and. li /= 1) limdang = jang + jang + 20+ &
+              if(iopang /= 0 .and. li /= 1) limdang = jang + jang + 20 + &
                                                   int(sqrt(c))
               if(iopang == 0) limd = limdrad
               if(ioprad == 0) limd = limdang
@@ -682,7 +686,7 @@ end if
 155           continue
               if(limd > maxp) limd = maxp
               if(ix == 0) limd = max(limd, max1e)
-              if(ix == 0) limd = max(limd, max1o)
+              if(ix == 1) limd = max(limd, max1o)
               if(limd > maxn) limd = maxn - 4
               if(2 * (limd / 2) /= limd) limd = limd - 1
 !
@@ -917,6 +921,64 @@ end if
               if(l == m .and. nsubmf > jtest .and. iopleg /= 0) iopleg = 0
 !
 !  determine prolate radial functions of the first kind
+!     calculation of r1 and r1d when x = 1.0
+              if(x1 == 0.0e0_knd .and. m == 0) then
+               if(l == 0) coefr1e = 1.0e0_knd
+               if(l == 1) coefr1o = 1.0e0_knd
+               rl = real(l, knd)
+               if(ix == 0) then
+                if(l > 0) coefr1e = coefr1e * rl / (rl - 1.0e0_knd)
+                r1c(li) = coefr1e * d01 * dmlf
+                iterm = int(log10(abs(r1c(li))))
+                r1c(li) = r1c(li) * (10.0e0_knd ** (-iterm))
+                ir1e(li) = id01 + idmlfe + iterm
+                r1dc(li) = cc * cc * coefr1e * d01 * dmlf * ((enr(1) / 15.0e0_knd)- &
+                           (1.0e0_knd / 3.0e0_knd))
+                iterm = int(log10(abs(r1dc(li))))
+                r1dc(li) = r1dc(li) * (10.0e0_knd ** (-iterm))
+                ir1de(li) = id01 + idmlfe + iterm
+               end if
+               if(ix == 1) then
+                if(l > 1) coefr1o = coefr1o * (rl - 1.0e0_knd) / rl
+                r1c(li) = cc * coefr1o * d01 * dmlf / 3.0e0_knd
+                iterm = int(log10(abs(r1c(li))))
+                r1c(li) = r1c(li) * (10.0e0_knd ** (-iterm))
+                ir1e(li) = id01 + idmlfe + iterm
+                r1dc(li) = cc * cc * cc * coefr1o * d01 * dmlf * ((enr(1) / 35.0e0_knd)- &
+                           (1.0e0_knd / 15.0e0_knd) + (1.0e0_knd / (3.0e0_knd * cc * cc)))
+                iterm = int(log10(abs(r1dc(li))))
+                r1dc(li) = r1dc(li) * (10.0e0_knd ** (-iterm))
+                ir1de(li) = id01 + idmlfe + iterm
+               end if
+               if(abs(r1c(li)) < 1.0e0_knd) then
+                r1c(li) = r1c(li) * 10.0e0_knd
+                ir1e(li) = ir1e(li) - 1
+               end if
+               if(abs(r1dc(li)) < 1.0e0_knd) then
+                r1dc(li) = r1dc(li) * 10.0e0_knd
+                ir1de(li) = ir1de(li) - 1
+               end if
+               naccr1 = ndec - nsubf - 2
+               if(naccr1 < 0) naccr1 = 0
+              end if
+              if(x1 == 0.0e0_knd .and. m /= 0) then
+               r1c(li) = (0.0e0_knd, 0.0e0_knd)
+               ir1e(li) = 0
+               r1dc(li) = (0.0e0_knd, 0.0e0_knd)
+               ir1de(li) = 0
+               naccr1 = ndec
+              end if
+              if(x1 == 0.0e0_knd) then
+if (debug) then
+              write(40, 178) naccr1
+              if(knd == kindd) write(40, 180) r1c(li), ir1e(li), r1dc(li), &
+                     ir1de(li)
+              if(knd == kindq) write(40, 181) r1c(li), ir1e(li), r1dc(li), &
+                     ir1de(li)
+end if
+               go to 185
+              end if
+!     calculation of r1 and r1d when x /= 1.0
               if(li == 1) limr1 = 3 * ndec + int(c)
               if(li /= 1) limr1 = jbesa + jbesa + 20 + c / 25
               call r1besa(l, m, cc, x1, limr1, maxd, enr, maxj, maxlp, ndec, nex, &
@@ -1091,7 +1153,7 @@ end if
               naccint = -int(log10(abs((wronc - wront) / wront) + dec)- &
                          0.5e0_knd)
               if(naccint < 0) naccint = 0
-              if(naccint > ndec - 1) naccint = ndec - 1
+              if(naccint > ndec-1) naccint = ndec-1
               naccinto = naccint
               nacccor = -int(log10(abs((wronca - wroncb) / wronca) + dec))
               if(nacccor < 0) nacccor = 0
@@ -1353,7 +1415,7 @@ end if
               naccneu = -int(log10(abs((wronc - wront) / wront) + dec)- &
                          0.5e0_knd)
               if(naccneu < 0) naccneu = 0
-              if(naccneu > ndec - 1) naccneu = ndec - 1
+              if(naccneu > ndec-1) naccneu = ndec-1
               naccneuo = naccneu
               nacccor = -int(log10(abs((wronca - wroncb) / wronca) + dec))
               nacccor = min(nacccor, naccrpl + 1)
@@ -3730,7 +3792,7 @@ end if
         wronc = wronca - wroncb
         naccleg = -int(log10(abs((wronc - wront) / wront) + dec))
         if(naccleg < 0) naccleg = 0
-        if(naccleg > ndec - 1) naccleg = ndec - 1
+        if(naccleg > ndec-1) naccleg = ndec-1
         nacclego = naccleg
         nacccor = -int(log10(abs(wronc / wronca) + dec))
         if(nacccor < 0) nacccor = 0
@@ -4669,7 +4731,7 @@ end if
         wronc = wronca - wroncb
         nacceta = -int(log10(abs((wronc - wront) / wront) + dec))
         if(nacceta < 0) nacceta = 0
-        if(nacceta > ndec - 1) nacceta = ndec - 1
+        if(nacceta > ndec-1) nacceta = ndec-1
         naccetao = nacceta
         nacccor = -int(log10(abs((wronca - wroncb) / wronca) + dec))
         if(nacccor < 0) nacccor = 0

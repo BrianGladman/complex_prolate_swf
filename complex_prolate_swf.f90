@@ -7,7 +7,7 @@ module complex_prolate_swf
                        r1c, ir1e, r1dc, ir1de, r2c, ir2e, r2dc, ir2de, naccr, &
                        s1c, is1e, s1dc, is1de, naccs, naccds)
 
-!      version 1.04 Oct 2023
+!      version 1.05 Dec 2023
 !
 !  subroutine version of the fortran program cprofcn developed about 2005 by
 !  arnie lee van buren with technical support from jeffrey boisvert. For more
@@ -2950,7 +2950,7 @@ if (debug) then
 end if
         iterm = int(log10(abs(r1dc)))
         ir1de = ir1e + iterm
-  r1dc = r1dc * 10.0e0_knd ** (-iterm)
+        r1dc = r1dc * 10.0e0_knd ** (-iterm)
           if(abs(real(r1dc)) > 10.0e0_knd .or. abs(aimag(r1dc)) >  &
               10.0e0_knd) then
           r1dc = r1dc / 10.0e0_knd
@@ -5816,8 +5816,8 @@ end if
         if(lm2 == 0) go to 140
           do 130 kjl = 1, lm2
           kkjl = lm2 - kjl + 1
-        d01 = d01 / enr(kkjl)
-          if(abs(d01) > teste) then
+          d01 = d01 / enr(kkjl)
+            if(abs(d01) > teste) then
             d01 = d01 * testeo
             id01 = id01 + nfac
             end if
@@ -6036,7 +6036,7 @@ end if
         end subroutine
 !
 !
-  subroutine gauss (n, ndec, x, w)
+    subroutine gauss (n, ndec, x, w)
 !
 !  purpose:     To evaluate the coordinates and weighting factors
 !               for an nth order Gaussian quadrature
@@ -6059,30 +6059,30 @@ end if
         imax = (n + 1) / 2
         pi = acos(-1.0_knd)
           do 40 i = 1, imax
-    z = cos(pi * (i - 0.25e0_knd) / (n + 0.5e0_knd))
+            z = cos(pi * (i - 0.25e0_knd) / (n + 0.5e0_knd))
             do 20 j = 1, 30
             u = 0.0e0_knd
-      v = 1.0e0_knd
-        do 10 k = 1, n
-        t = u
+        v = 1.0e0_knd
+          do 10 k = 1, n
+          t = u
               u = v
-        v = ((k + k - 1) * z * u - (k - 1) * t) / k
-10          continue
+          v = ((k + k - 1) * z * u - (k - 1) * t) / k
+10            continue
             s = z * z - 1.0e0_knd
-      der = n * (z * v - u) / s
-      delta = -v / der - 0.5e0_knd * v * v * ((n * n * s - n * z * z - n) * v+ &
+        der = n * (z * v - u) / s
+        delta = -v / der - 0.5e0_knd * v * v * ((n * n * s - n * z * z - n) * v+ &
                     2.0e0_knd * n * z * u) / (der * der * der * s * s)
             z = z + delta
-      if(abs(delta / z) < test) go to 30
+        if(abs(delta / z) < test) go to 30
 20          continue
 30        continue
-    x(i) = -z
-    x(n + 1 - i) = z
-    w(i) = 2.0e0_knd / ((1.0e0_knd - z * z) * der * der)
-    w(n + 1 - i) = w(i)
+      x(i) = -z
+      x(n + 1 - i) = z
+      w(i) = 2.0e0_knd / ((1.0e0_knd - z * z) * der * der)
+      w(n + 1 - i) = w(i)
 40    continue
-  return
-  end subroutine
+    return
+    end subroutine
 !
 !
         subroutine pleg (m, lim, maxp, ndec, nex, limcsav, iopd, barg, narg, &
@@ -6760,10 +6760,10 @@ end if
 20      step2 = (1.0e0_knd - step1) / (ngqs - 1)
 !
 !  calculation of scaling factors for the associated Legendre functions
-  pnorm(1) = 1.0e0_knd
-  pnorm(2) = 1.0e0_knd
-  ipnorm(1) = 0
-  ipnorm(2) = 0
+    pnorm(1) = 1.0e0_knd
+    pnorm(2) = 1.0e0_knd
+    ipnorm(1) = 0
+    ipnorm(2) = 0
         if(m == 0) go to 50
           do 40 n = 1, m
           an = real(n + n)
@@ -6797,7 +6797,7 @@ end if
 !
 !  calculation of the coefficients in the recursion relation used
 !  for the scaled associated Legendre functions
-  alpha(1) = (twom + 1.0e0_knd) * pnorm(1) / pnorm(2)
+    alpha(1) = (twom + 1.0e0_knd) * pnorm(1) / pnorm(2)
         alpha(1) = alpha(1) * 10.0e0_knd ** (ipnorm(1) - ipnorm(2))
         beta(1) = 0.0e0_knd
         alpha(2) = (twom + 3.0e0_knd) * pnorm(2) / (pnorm(3) * 2.0e0_knd)
@@ -6806,7 +6806,7 @@ end if
           do 80 il = 3, lim + 2
           alpha(il) = alpha(il - 2) * (twom + il - 1) * (twom + il + il - 1)* &
           (il - 2) / ((il - 1) * (twom + il) * (twom + il + il - 5))
-    beta(il) = -(twom + il - 1) / (twom + il)
+      beta(il) = -(twom + il - 1) / (twom + il)
 80    continue
 !
           do 90 il = 1, lim + 2, 2
@@ -6822,7 +6822,7 @@ end if
         twomi = 1.0e0_knd
         if(m == 0) go to 110
           do 100 n = 1, m
-    twomi = twomi * real(n + n - 1, knd) / real(n + n, knd)
+            twomi = twomi * real(n + n - 1, knd) / real(n + n, knd)
 100       continue
 110 continue
         arg = cc * sqrt(x2m1)
